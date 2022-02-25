@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"path"
 
+	"github.com/tiagompalte/web-crawler-nf/government"
 	"github.com/tiagompalte/web-crawler-nf/services"
 )
 
@@ -38,31 +39,27 @@ func (c Controller) GetBillSale(w http.ResponseWriter, r *http.Request) {
 	number := r.URL.Query().Get("number")
 	uf := r.URL.Query().Get("uf")
 
+	var billSale government.BillSale
+	var err error
 	if url != "" {
 		fmt.Println("URL", url)
-		billSale, err := c.service.GetBillSaleByUrl(url)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(billSale)
+		billSale, err = c.service.GetBillSaleByUrl(url)
 	} else if number != "" && uf != "" {
 		fmt.Println("Number", number)
 		fmt.Println("UF", uf)
-		billSale, err := c.service.GetBillSaleByNumber(number, uf)
-		if err != nil {
-			fmt.Println(err)
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(billSale)
+		billSale, err = c.service.GetBillSaleByNumber(number, uf)
 	} else {
 		http.Error(w, "Inform URL or Number", http.StatusInternalServerError)
+		return
 	}
+
+	if err != nil {
+		fmt.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(billSale)
 
 }
