@@ -4,31 +4,65 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <title>Leitura Nota Fiscal</title>
 </head>
 <body>
     <div id="qr-reader" style="width:500px"></div>
     <div id="qr-reader-results"></div>
+    <div>
+        <form class="form">
+            <label for="number">Número Nota Fiscal:</label><br>
+            <input type="text" id="number" name="number" class="number"><br>
+            <input type="text" id="uf" name="uf" value="AC" hidden class="uf"><br>
+            <input type="submit" value="Submit">
+          </form>
+    </div>
 </body>
 </html>
 
 <script>
+    $('.form').on('submit', function () {
+        var number = $('.number').val();
+        var uf = $('.uf').val();
+
+        console.log('/bill-sale?number=' + number + '&uf=' + uf);
+
+        fetch('/bill-sale?number=' + number + '&uf=' + uf)
+                .then(r => {
+                    $('.number').val('')
+                    $('.uf').val('')
+                    r.json()
+                        .then(json => alert(JSON.stringify(json)))
+                        .catch(e => console.error(e))
+                })
+                .catch(e => {
+                    console.error(e)
+                    alert(e)
+                })
+
+        return false
+    });
+
     var resultContainer = document.getElementById('qr-reader-results');
-    var lastResult, countResults = 0;
+    var lastResult = "";
 
     function onScanSuccess(decodedText, decodedResult) {
         if (decodedText !== lastResult) {
-            ++countResults;
             lastResult = decodedText;
             // Handle on success condition with the decoded message.
             console.log(`Scan result ${decodedText}`, decodedResult);
 
             fetch('/bill-sale?url=' + decodedText)
                 .then(r => {
-                    r.json().then(json => alert(JSON.stringify(json))).catch(e => console.error(e))
+                    lastResult = ""
+                    r.json()
+                        .then(json => alert(JSON.stringify(json)))
+                        .catch(e => console.error(e))
                 })
                 .catch(e => {
+                    lastResult = ""
                     console.error(e)
                     alert(e)
                 })
