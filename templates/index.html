@@ -27,20 +27,18 @@
         var number = $('.number').val();
         var uf = $('.uf').val();
 
-        console.log('/bill-sale?number=' + number + '&uf=' + uf);
-
         fetch('/bill-sale?number=' + number + '&uf=' + uf)
-                .then(r => {
-                    $('.number').val('')
-                    $('.uf').val('')
-                    r.json()
-                        .then(json => alert(JSON.stringify(json)))
-                        .catch(e => console.error(e))
-                })
-                .catch(e => {
-                    console.error(e)
-                    alert(e)
-                })
+            .then(r => {
+                $('.number').val('')
+                $('.uf').val('')
+                r.json()
+                    .then(json => alert(JSON.stringify(json)))
+                    .catch(e => console.error(e))
+            })
+            .catch(e => {
+                console.error(e)
+                alert(e)
+            });
 
         return false
     });
@@ -65,7 +63,7 @@
                     lastResult = ""
                     console.error(e)
                     alert(e)
-                })
+                });
         }
     }
 
